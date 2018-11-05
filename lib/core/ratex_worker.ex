@@ -42,8 +42,9 @@ defmodule Ratex.RateWorker do
         {:ok, state}
       end
 
-      def instance(options) do
-        instance(&work/2, unquote(options))
+     def instance(opt) do
+        default_options = unquote(options)        
+        instance(&work/2, Map.merge(default_options, opt))
       end
 
       def start_link(opts) do
