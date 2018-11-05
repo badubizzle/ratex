@@ -38,25 +38,31 @@ defmodule Ratex.RateManager do
         end
       end
 
+      @doc """
+      Start a new worker with options
+      """
       def add_worker(options) do
         GenServer.call(unquote(name), {:add_worker, options})
       end
 
+      @doc """
+      Add a new item to queue.
+      """
       def add_item(key, data) do
         GenServer.call(unquote(name), {:add_item, {key, data}})
       end
 
-      def test() do
-        1..5
-        |> Enum.each(fn _ ->
-          add_worker(%{})
-        end)
+      # def test() do
+      #   1..5
+      #   |> Enum.each(fn _ ->
+      #     add_worker(%{})
+      #   end)
 
-        1..1000
-        |> Enum.each(fn n ->
-          add_item("handle_#{n}", n)
-        end)
-      end
+      #   1..1000
+      #   |> Enum.each(fn n ->
+      #     add_item("handle_#{n}", n)
+      #   end)
+      # end
 
       def init({:start, options}) do
         initial_workers = Keyword.get(unquote(kw), :initial_workers, 0)
@@ -242,7 +248,7 @@ defmodule Ratex.RateManager do
 
             case next_worker do
               nil ->
-                IO.puts("No available worker. Try again")
+                #IO.puts("No available worker. Try again")
                 # put back the handle
                 new_state =
                   state
@@ -270,7 +276,7 @@ defmodule Ratex.RateManager do
             end
 
           _ ->
-            IO.puts("No next handle available")
+            #IO.puts("No next handle available")
             {:noreply, state}
         end
       end
