@@ -15,7 +15,7 @@ The library can start and manage multiple clients with different access tokens t
 
 defmodule InstagramWorker do
   use Ratex.RateWorker,
-  rate_limit: 250, # 250 api records
+  rate_limit: 250, # 250 api requests
   rate_seconds: 3600 # per hour
 
   # override work/2 to handle work sent by the client manager
