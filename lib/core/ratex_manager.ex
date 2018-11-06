@@ -157,6 +157,37 @@ defmodule Ratex.RateManager do
         get_state(unquote(name))
       end
 
+      def get_worker_state(worker_pid)do
+        GenServer.call(worker_pid, :get_state)
+      end
+
+      def pending_items()do
+        get_items(:pending)
+      end
+
+      def in_progress_items()do
+        get_items(:in_progress)
+      end
+
+      def completed_items()do
+        get_items(:completed)
+      end
+
+
+      defp get_items(status)do        
+        GenServer.call(unquote(name), {:get_items, status})        
+      end
+
+      def handle_call({:get_items, status}, _from, state)do
+        result = case status do
+          :completed -> {:ok, state.completed}
+          :in_progress -> {:ok, state.in_progress}
+          :pending -> {:ok, state.pending}
+          _ -> {:error, :invalid_status}
+        end
+        {:reply, result, state}
+      end
+
       def handle_call({:add_worker, options}, _from, state) do
         {:ok, pid} = unquote(worker_module).instance(options)
         ref = Process.monitor(pid)
@@ -171,7 +202,7 @@ defmodule Ratex.RateManager do
           |> Map.put(:free_workers, free_workers)
 
         run_next()
-        {:reply, :ok, new_state}
+        {:reply, {:ok, pid}, new_state}
       end
 
       def handle_call(:_get_state, _from, %{} = state) do
@@ -192,7 +223,7 @@ defmodule Ratex.RateManager do
               {{:ok, key}, Map.put(state, :pending, Map.put(state.pending, key, item_state))}
 
             any ->
-              {{:error, :exists, any.data}, state}
+              {{:error, :exists, key}, state}
           end
 
         run_next()

@@ -1,4 +1,8 @@
 defmodule Ratex.RateWorker do
+
+  def get_worker_state(pid)do
+    GenServer.call(pid, :get_state)
+  end
   defmacro __using__(options: options) do
     quote do
       use GenServer
@@ -57,6 +61,10 @@ defmodule Ratex.RateWorker do
 
       def on_rated(state, payload) do
         state
+      end
+
+      def handle_call(:get_state, _from, state)do
+        {:reply, state, state}
       end
 
       def handle_cast({:next, payload, parent}, state) do
